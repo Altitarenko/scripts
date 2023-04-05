@@ -1,0 +1,29 @@
+---
+- name: Configure xvnc
+  hosts: test17
+  become: yes 
+  #become_method: sudo
+  
+  vars: 
+    src_file: ./files/x11vnc.service
+    dest_file: /lib/systemd/system/
+
+  tasks:
+    - name: Install
+      yum: name=x11vnc state=latest
+  
+    - name: Copy file to remote comp
+      copy: src={{ src_file }} dest={{ dest_file }} mode=0644
+      notify:  restart x11vnc
+      
+    - name: Make sure x11vnc is running
+      systemd:
+       name: x11vnc.service
+       state: started
+       enabled: yes
+
+  handlers: 
+    - name : restart x11vnc
+      service: name=x11vnc state=started
+
+
